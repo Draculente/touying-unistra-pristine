@@ -128,10 +128,9 @@
 
     let has-title-and-subtitle = {
       if (
-        (
-          self.info.short-title != auto and self.info.short-subtitle != auto
+        (self.info.short-title != auto and self.info.short-subtitle != auto) or (
+          self.info.title != auto and self.info.subtitle != auto
         )
-          or (self.info.title != auto and self.info.subtitle != auto)
       ) {
         true
       } else {
@@ -159,27 +158,21 @@
               text(
                 title,
                 weight: "bold",
-              )
-                + if self.store.footer-show-subtitle
-                  and has-title-and-subtitle {
-                  self.store.footer-upper-sep
+              ) + if self.store.footer-show-subtitle and has-title-and-subtitle {
+                self.store.footer-upper-sep
+              } else {
+                ""
+              } + if self.store.footer-show-subtitle {
+                if self.info.short-subtitle != auto {
+                  self.info.short-subtitle
                 } else {
-                  ""
+                  self.info.subtitle
                 }
-                + if self.store.footer-show-subtitle {
-                  if self.info.short-subtitle != auto {
-                    self.info.short-subtitle
-                  } else {
-                    self.info.subtitle
-                  }
-                }
-                + "\n"
-                + self.info.author
-                + if self.info.date != none {
-                  self.store.footer-lower-sep + self.info.date
-                } else {
-                  ""
-                },
+              } + "\n" + self.info.author + if self.info.date != none {
+                self.store.footer-lower-sep + self.info.date
+              } else {
+                ""
+              },
               width: 100%,
             ),
           ),
@@ -190,16 +183,11 @@
                 let current = int(utils.slide-counter.display())
                 let last = int(utils.last-slide-counter.display())
                 if current > last {
-                  (
-                    text(self.store.footer-appendix-label, style: "italic")
-                      + str(current)
-                  )
+                  (text(self.store.footer-appendix-label, style: "italic") + str(current))
                 } else {
                   str(current)
                 }
-              }
-                + " / "
-                + utils.last-slide-number,
+              } + " / " + utils.last-slide-number,
             ),
           ),
         )
@@ -459,17 +447,15 @@
   if (theme != none) {
     assert(
       theme in self.store.colorthemes,
-      message: "The theme "
-        + theme
-        + " is not defined. Available themes are: "
-        + self.store.colorthemes.keys().join(", "),
+      message: "The theme " + theme + " is not defined. Available themes are: " + self
+        .store
+        .colorthemes
+        .keys()
+        .join(", "),
     )
     assert(
-      self.store.colorthemes.at(theme).len() != 2
-        or self.store.colorthemes.at(theme).len() != 3,
-      message: "The theme "
-        + theme
-        + " is not a valid color theme. A valid color theme should have 2 or 3 colors.",
+      self.store.colorthemes.at(theme).len() != 2 or self.store.colorthemes.at(theme).len() != 3,
+      message: "The theme " + theme + " is not a valid color theme. A valid color theme should have 2 or 3 colors.",
     )
 
     let theme-has-text-color = self.store.colorthemes.at(theme).len() == 3
@@ -647,9 +633,7 @@
     let new-txt = merged-txt.text
     if type(merged-txt.enhanced) == "boolean" and merged-txt.enhanced {
       new-txt = text(size: 2em, weight: 900, merged-txt.text)
-    } else if (
-      type(merged-txt.enhanced) == "boolean" and not merged-txt.enhanced
-    ) {
+    } else if (type(merged-txt.enhanced) == "boolean" and not merged-txt.enhanced) {
       new-txt = merged-txt.text
     } else if type(merged-txt.enhanced) == "function" {
       new-txt = (merged-txt.enhanced)(merged-txt.text)
@@ -833,31 +817,29 @@
   let body = {
     set align(center + horizon)
     grid(
-      ..figs
-        .enumerate()
-        .map(((i, fig)) => {
-          let caption = if i < captions.len() {
-            let cap = captions.at(i)
-            if cap != "" {
-              cap
-            } else {
-              none
-            }
+      ..figs.enumerate().map(((i, fig)) => {
+        let caption = if i < captions.len() {
+          let cap = captions.at(i)
+          if cap != "" {
+            cap
           } else {
             none
           }
+        } else {
+          none
+        }
 
-          if (bold-caption) {
-            caption = text(weight: "bold", caption)
-          }
+        if (bold-caption) {
+          caption = text(weight: "bold", caption)
+        }
 
-          figure(
-            fig,
-            caption: caption,
-            gap: gap,
-            numbering: none,
-          )
-        }),
+        figure(
+          fig,
+          caption: caption,
+          gap: gap,
+          numbering: none,
+        )
+      }),
       columns: columns,
       rows: 1fr * rows,
       gutter: gutter,
@@ -968,7 +950,8 @@
           font: self.store.font,
           size: 25pt,
         )
-        set outline(target: heading.where(level: 1), title: none, fill: none)
+        set outline(target: heading.where(level: 1), title: none)
+        set outline.entry(fill: none)
         set enum(numbering: n => [*#n;.*])
         //set list(spacing: 1em)
         // the default [‣] icon does not align properly
